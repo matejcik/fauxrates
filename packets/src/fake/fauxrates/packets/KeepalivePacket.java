@@ -5,5 +5,13 @@ import java.util.Date;
 
 public class KeepalivePacket extends Packet {
 
-	Date time = Calendar.getInstance().getTime();
+	private Date time = Calendar.getInstance().getTime();
+
+	public Date getTime () {
+		return time;
+	}
+
+	public void setTime (Date time) {
+		this.time = time;
+	}
 }
