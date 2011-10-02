@@ -160,9 +160,9 @@ abstract class Server (val port : Int) {
 		}
 	}
 
-	abstract def onConnect (connection : Connection) : Unit
-	abstract def onReceive (connection : Connection, msg : Map[String, Object]) : Unit
-	abstract def onDisconnect (connection : Connection) : Unit
+	def onConnect (connection : Connection) : Unit
+	def onReceive (connection : Connection, msg : Map[String, Object]) : Unit
+	def onDisconnect (connection : Connection) : Unit
 }
 
 class Connection (val socket : SocketChannel) {
