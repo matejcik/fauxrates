@@ -1,4 +1,4 @@
-package fake.fauxrates
+package fake.fauxrates.ES
 
 import org.specs2.mutable._
 
@@ -46,35 +46,35 @@ class EntitySystemTest extends Specification {
 		}
 
 		"check if components are on entities" in {
-			EntitySystem.hasComponent(em, classOf[MockComponent]) must beTrue
-			EntitySystem.hasComponent(em, classOf[BarComponent]) must beTrue
-			EntitySystem.hasComponent(em, classOf[FreakComponent]) must beFalse
+			EntitySystem.has[MockComponent](em) must beTrue
+			EntitySystem.has[BarComponent](em) must beTrue
+			EntitySystem.has[FreakComponent](em) must beFalse
 
-			EntitySystem.hasComponent(en, classOf[BarComponent]) must beTrue
-			EntitySystem.hasComponent(en, classOf[FreakComponent]) must beTrue
-			EntitySystem.hasComponent(en, classOf[MissingComponent]) must beFalse
+			EntitySystem.has[BarComponent](en) must beTrue
+			EntitySystem.has[FreakComponent](en) must beTrue
+			EntitySystem.has[MissingComponent](en) must beFalse
 
-			EntitySystem.hasComponent(entity, classOf[MockComponent]) must beFalse
+			EntitySystem.has[MockComponent](entity) must beFalse
 		}
 
 		"retrieve said components" in {
-			val mc = EntitySystem.getComponent(em, classOf[MockComponent])
+			val mc = EntitySystem.get[MockComponent](em)
 			mc must beSome
 			mc.get mustEqual emm
-			val nc = EntitySystem.getComponent(en, classOf[MockComponent])
+			val nc = EntitySystem.get[MockComponent](en)
 			nc must beSome
 			nc.get mustEqual enm
 
-			EntitySystem.getComponent(em, classOf[FreakComponent]) must beNone
-			EntitySystem.getComponent(entity, classOf[MockComponent]) must beNone
+			EntitySystem.get[FreakComponent](em) must beNone
+			EntitySystem.get[MockComponent](entity) must beNone
 		}
 
 		"and remove them" in {
-			EntitySystem.removeComponent(em, classOf[MockComponent])
-			EntitySystem.getComponent(em, classOf[MockComponent]) must beNone
-			EntitySystem.getComponent(en, classOf[MockComponent]) must beSome
+			EntitySystem.remove[MockComponent](em)
+			EntitySystem.get[MockComponent](em) must beNone
+			EntitySystem.get[MockComponent](en) must beSome
 
-			EntitySystem.removeComponent(em, classOf[MockComponent])
+			EntitySystem.remove[MockComponent](em)
 			success
 		}
 	}
