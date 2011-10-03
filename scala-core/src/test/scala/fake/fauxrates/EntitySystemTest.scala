@@ -57,6 +57,17 @@ class EntitySystemTest extends Specification {
 			EntitySystem.has[MockComponent](entity) must beFalse
 		}
 
+		"find entities by components" in {
+			var ef = EntitySystem.entityFor(emm)
+			ef must beSome
+			ef.get mustEqual em
+			ef = EntitySystem.entityFor(enm)
+			ef must beSome
+			ef.get mustEqual en
+
+			EntitySystem.entityFor(new FreakComponent) must beNone
+		}
+
 		"retrieve said components" in {
 			val mc = EntitySystem.get[MockComponent](em)
 			mc must beSome
