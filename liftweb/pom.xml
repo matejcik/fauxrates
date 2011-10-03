@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fake.fauxrates</groupId>
   <artifactId>liftweb</artifactId>
-  <version>1.0</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>liftweb Project</name>
   <inceptionYear>2010</inceptionYear>
