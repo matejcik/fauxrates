@@ -1,9 +1,17 @@
 <lift:surround with="default" at="content">
-		<h2>Welcome to your project!</h2>
-		<p>
-      <lift:helloWorld.howdy>
-        <span>Welcome to liftweb at <b:time/></span>
-      </lift:helloWorld.howdy>
+    <h2>Welcome to your project!</h2>
+
+    <p>
+        <lift:helloWorld.howdy>
+            <span>Hello <b:user/>!!</span><br/>
+            <span>Welcome to liftweb at <b:time/></span>
+        </lift:helloWorld.howdy>
+    </p>
+    <h3>logged in now:</h3>
+    <p>
+        <lift:HelloWorld.users>
+            <b:username/> since <b:since/><br/>
+        </lift:HelloWorld.users>
     </p>
 </lift:surround>
 
