@@ -1,4 +1,4 @@
-package fake.fauxrates.model
+package fake.fauxrates.liftweb.model
 
 import net.liftweb.common._
 import fake.fauxrates.ES._

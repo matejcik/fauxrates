@@ -1,4 +1,4 @@
-package fake.fauxrates {
+package fake.fauxrates.liftweb {
 package snippet {
 
 import _root_.scala.xml.NodeSeq
