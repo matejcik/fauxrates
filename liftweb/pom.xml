@@ -44,6 +44,12 @@
   </pluginRepositories>
 
   <dependencies>
+	<dependency>
+	  <groupId>fake.fauxrates</groupId>
+	  <artifactId>scala-core</artifactId>
+	  <version>0.1-SNAPSHOT</version>
+	</dependency>
+
     <dependency>
       <groupId>net.liftweb</groupId>
       <artifactId>lift-mapper_2.9.1</artifactId>
