@@ -58,5 +58,10 @@ object EntitySystem {
 		case _ => None
 	}
 
+	def allOf[A <: Component] () (implicit m : Manifest[A]) = componentStores get m match {
+		case Some(store : Store[_]) => store.asInstanceOf[Store[A]].values
+		case _ => Iterable[A]()
+	}
+
 	//def remove[A <: Component] (component : A) : Unit = remove(component.entity, classof(component))
 }

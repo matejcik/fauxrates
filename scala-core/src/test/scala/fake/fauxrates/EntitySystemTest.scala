@@ -68,6 +68,12 @@ class EntitySystemTest extends Specification {
 			EntitySystem.entityFor(new FreakComponent) must beNone
 		}
 
+		"find all components of type" in {
+			EntitySystem.allOf[MockComponent] must contain(enm, emm)
+			EntitySystem.allOf[FreakComponent] must contain(enf).only
+			EntitySystem.allOf[MissingComponent] must be empty
+		}
+
 		"retrieve said components" in {
 			val mc = EntitySystem.get[MockComponent](em)
 			mc must beSome
