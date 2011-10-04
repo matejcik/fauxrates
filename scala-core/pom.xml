@@ -15,6 +15,11 @@
       <name>Scala-Tools Maven2 Repository</name>
       <url>http://scala-tools.org/repo-releases</url>
     </repository>
+
+	  <repository>
+		  <id>JBoss Repo</id>
+		  <url>http://repository.jboss.org/nexus/content/groups/public</url>
+	  </repository>
   </repositories>
 
   <pluginRepositories>
@@ -43,6 +48,44 @@
           <artifactId>specs2-scalaz-core_${scala.version}</artifactId>
           <version>6.0.1</version>
       </dependency>
+
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-core</artifactId>
+		  <version>3.5.6-Final</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.hibernate.java-persistence</groupId>
+		  <artifactId>jpa-api</artifactId>
+		  <version>2.0-cr-1</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-entitymanager</artifactId>
+		  <version>3.5.0-Beta-2</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-annotations</artifactId>
+		  <version>3.5.6-Final</version>
+	  </dependency>
+
+	  <dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-api</artifactId>
+		  <version>1.6.2</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-simple</artifactId>
+		  <version>1.6.2</version>
+	  </dependency>
+
+	  <dependency>
+		  <groupId>postgresql</groupId>
+		  <artifactId>postgresql</artifactId>
+		  <version>RELEASE</version>
+	  </dependency>
   </dependencies>
 
   <build>

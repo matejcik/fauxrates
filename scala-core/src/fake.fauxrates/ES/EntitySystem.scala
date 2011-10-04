@@ -9,7 +9,7 @@ abstract class Component
 
 object EntitySystem {
 
-	type Entity = Long
+	type Entity = Persistence.KeyType
 	private type Store[C <: Component] = ConcurrentMap[Entity, C]
 
 	var componentStores = new ImmutableHashMap[Manifest[_ <: Component], Store[_]]
@@ -18,7 +18,7 @@ object EntitySystem {
 
 	private var lastEntity : Entity = 0
 
-	def createEntity () = synchronized {
+	/*def createEntity () = synchronized {
 		val n = lastEntity
 		lastEntity += 1
 		allEntities += n
@@ -27,6 +27,25 @@ object EntitySystem {
 
 	def deleteEntity (n : Entity) = synchronized {
 		allEntities -= n
+	}*/
+
+	def createEntity () = {
+		val session = Persistence.session()
+		val tx = session.getTransaction
+		val entity = new PersistentEntity
+		tx.begin()
+		session.persist(entity)
+		tx.commit()
+		entity.id
+	}
+
+	def deleteEntity (n : Entity) : Unit = {
+		val session = Persistence.session()
+		val tx = session.getTransaction
+		tx.begin()
+		val q = session.find(classOf[PersistentEntity], n)
+		if (q != null) session.remove(q)
+		tx.commit()
 	}
 
 	def addComponent[A <: Component] (entity : Entity, component : A) (implicit m : Manifest[A]) : Unit = {
