@@ -102,6 +102,8 @@ class EntitySystemSpec extends Specification {
 			EntitySystem.get[MockComponent](en) must beSome
 
 			EntitySystem.remove[MockComponent](em)
+
+			EntitySystem.remove[FreakComponent](en)
 			success
 		}
 	}

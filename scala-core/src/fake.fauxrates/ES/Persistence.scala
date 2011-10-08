@@ -27,17 +27,18 @@ object Persistence extends Schema {
 		)
 	}
 
-	def createSchema = transaction { this.create }
+	def createSchema = inTransaction { this.create }
 
 	val entities = table[PersistentEntity]("entities")
 
-	def transaction[T] (a : => T) : T = inTransaction(a)
-
 	var tables = new HashMap[Manifest[_], Table[_]]
 
-	def register[A <: Component] () (implicit m : Manifest[A]) : Unit = synchronized {
+	def register[A <: Component] () (implicit m : Manifest[A]) : Unit =
+		register[A](m.erasure.getSimpleName.toLowerCase)
+
+	def register[A <: Component] (name : String) (implicit m : Manifest[A]) : Unit = synchronized {
 		if (tables contains m) throw new Exception("we already have "+m+"!")
-		val t = table[A]
+		val t = table[A](name)
 		on(t) { item => declare( item.id is primaryKey ) }
 		tables += m -> t
 	}
