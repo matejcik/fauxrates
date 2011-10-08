@@ -7,7 +7,7 @@ case class BarComponent (val s : String) extends Component
 case class FreakComponent extends Component
 case class MissingComponent extends Component
 
-class EntitySystemTest extends Specification {
+class EntitySystemSpec extends Specification {
 
 	args(sequential = true)
 
