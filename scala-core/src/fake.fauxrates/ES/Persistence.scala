@@ -1,23 +1,46 @@
 package fake.fauxrates.ES
 
-import javax.persistence._
-import scala.reflect._
+import org.squeryl.PrimitiveTypeMode._
+import org.squeryl._
+import adapters.PostgreSqlAdapter
+import collection.immutable.HashMap
 
-@Entity @Table(name = "entities")
-class PersistentEntity {
 
-	@Id
-	@SequenceGenerator(name = "entity_generator", sequenceName = "entities_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="entity_generator")
-	@BeanProperty var id : Persistence.KeyType = _
-
-	@BeanProperty var comment : String = _
+class PersistentEntity extends KeyedEntity[Persistence.KeyType] {
+	val id : Persistence.KeyType = -1
+	val comment : String = ""
 }
 
-object Persistence {
+object Persistence extends Schema {
 	type KeyType = Long
 
-	private val factory = javax.persistence.Persistence.createEntityManagerFactory("fauxrates-persistence")
+	private val driver = "org.postgresql.Driver"
+	private val connection = "jdbc:postgresql://localhost/fauxrates"
+	private val username = "fauxrates"
+	private val password = "aaa"
 
-	def session () = factory.createEntityManager()
+	Class.forName(driver)
+	SessionFactory.concreteFactory = Some{() =>
+		Session.create(
+			java.sql.DriverManager.getConnection(connection, username, password),
+		    new PostgreSqlAdapter
+		)
+	}
+
+	def createSchema = transaction { this.create }
+
+	val entities = table[PersistentEntity]("entities")
+
+	def transaction[T] (a : => T) : T = inTransaction(a)
+
+	var tables = new HashMap[Manifest[_], Table[_]]
+
+	def register[A <: Component] () (implicit m : Manifest[A]) : Unit = synchronized {
+		if (tables contains m) throw new Exception("we already have "+m+"!")
+		val t = table[A]
+		on(t) { item => declare( item.id is primaryKey ) }
+		tables += m -> t
+	}
+
+	def tableFor[A <: Component] () (implicit m : Manifest[A]) = tables(m).asInstanceOf[Table[A]]
 }

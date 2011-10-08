@@ -1,86 +1,52 @@
 package fake.fauxrates.ES
 
-import collection.immutable.{HashSet => ImmutableHashSet, HashMap => ImmutableHashMap}
-import collection.JavaConversions._
-import collection.mutable.ConcurrentMap
-import java.util.concurrent.ConcurrentHashMap
+import org.squeryl.KeyedEntity
+import org.squeryl.PrimitiveTypeMode.{transaction => _, _}
+import Persistence._
 
-abstract class Component
+abstract class Component extends KeyedEntity[EntitySystem.Entity] {
+	var id : EntitySystem.Entity = -1
+}
 
 object EntitySystem {
 
 	type Entity = Persistence.KeyType
-	private type Store[C <: Component] = ConcurrentMap[Entity, C]
-
-	var componentStores = new ImmutableHashMap[Manifest[_ <: Component], Store[_]]
-
-	var allEntities = new ImmutableHashSet[Entity]
-
-	private var lastEntity : Entity = 0
-
-	/*def createEntity () = synchronized {
-		val n = lastEntity
-		lastEntity += 1
-		allEntities += n
-		n
-	}
-
-	def deleteEntity (n : Entity) = synchronized {
-		allEntities -= n
-	}*/
 
 	def createEntity () = {
-		val session = Persistence.session()
-		val tx = session.getTransaction
-		val entity = new PersistentEntity
-		tx.begin()
-		session.persist(entity)
-		tx.commit()
+		val entity = new PersistentEntity()
+		transaction { entities insert entity }
 		entity.id
 	}
 
 	def deleteEntity (n : Entity) : Unit = {
-		val session = Persistence.session()
-		val tx = session.getTransaction
-		tx.begin()
-		val q = session.find(classOf[PersistentEntity], n)
-		if (q != null) session.remove(q)
-		tx.commit()
-	}
-
-	def addComponent[A <: Component] (entity : Entity, component : A) (implicit m : Manifest[A]) : Unit = {
-		var ismap = componentStores get m
-		if (ismap.isEmpty) synchronized {
-			ismap = componentStores get m
-			if (ismap.isEmpty) /* still */ {
-				ismap = Some(new ConcurrentHashMap[Entity, A])
-				componentStores += m -> ismap.get
-			}
+		transaction {
+			entities delete n
 		}
-		val store = ismap.get.asInstanceOf[Store[A]]
-		store += entity -> component
 	}
 
-	def get[A <: Component](entity: Entity) (implicit m : Manifest[A]) = componentStores get m match {
-		case Some(store : Store[_]) => store.asInstanceOf[Store[A]] get entity
-		case _ => None
+	def update[A <: Component] (entity : Entity, component : A) (implicit m : Manifest[A]) : Unit = {
+		if (component.id >= 0 && entity != component.id)
+			throw new Exception("this component already has a perfectly good entity")
+		component.id = entity
+		transaction { tableFor[A] insertOrUpdate component }
 	}
 
-	def has[A <: Component](entity: Entity) (implicit store : Manifest[A]) =
-		componentStores get store map { _ contains entity } getOrElse false
+	def get[A <: Component](entity: Entity) (implicit m : Manifest[A]) : Option[A] =
+		transaction { tableFor[A] lookup entity }
 
-	def remove[A <: Component](entity : Entity) (implicit store : Manifest[A]) : Unit =
-		componentStores get store map { _ remove entity }
+	def has[A <: Component](entity: Entity) (implicit m : Manifest[A]) =
+		get[A](entity) isDefined
 
-	def entityFor[A <: Component] (component : A) (implicit m : Manifest[A]) = componentStores get m match {
-		case Some(store : Store[_]) => store.asInstanceOf[Store[A]] find {_._2 == component} map {_._1}
-		case _ => None
+	def remove[A <: Component](entity : Entity) (implicit m : Manifest[A]) : Unit =
+		transaction { tableFor[A] delete entity }
+
+	def remove[A <: Component](component : A) (implicit m : Manifest[A]) : Unit =
+		transaction { tableFor[A] delete component.id }
+
+	def entityFor[A <: Component] (component : A) =
+		if (component.id >= 0) Some(component.id) else None
+
+	def allOf[A <: Component] () (implicit m : Manifest[A]) : Iterable[A] = {
+		transaction { from(tableFor[A]) { select(_) } map {(x)=>x} }
 	}
-
-	def allOf[A <: Component] () (implicit m : Manifest[A]) = componentStores get m match {
-		case Some(store : Store[_]) => store.asInstanceOf[Store[A]].values
-		case _ => Iterable[A]()
-	}
-
-	//def remove[A <: Component] (component : A) : Unit = remove(component.entity, classof(component))
 }

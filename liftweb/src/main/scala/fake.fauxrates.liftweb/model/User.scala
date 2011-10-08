@@ -25,7 +25,7 @@ object User {
 	def login (name : String) = {
 		logout()
 		val u = new User(name)
-		EntitySystem.addComponent(EntitySystem.createEntity(), u.component)
+		EntitySystem.update(EntitySystem.createEntity(), u.component)
 		curUser.set(Full(u))
 	}
 

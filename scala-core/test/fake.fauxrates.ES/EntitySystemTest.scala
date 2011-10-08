@@ -2,6 +2,11 @@ package fake.fauxrates.ES
 
 import org.specs2.mutable._
 
+case class MockComponent (val i : Int) extends Component
+case class BarComponent (val s : String) extends Component
+case class FreakComponent extends Component
+case class MissingComponent extends Component
+
 class EntitySystemTest extends Specification {
 
 	args(sequential = true)
@@ -10,11 +15,6 @@ class EntitySystemTest extends Specification {
 	var en : EntitySystem.Entity = 0
 	var em : EntitySystem.Entity = 0
 
-	class MockComponent (val i : Int) extends Component
-	class BarComponent (val s : String) extends Component
-	class FreakComponent extends Component
-	class MissingComponent extends Component
-
 	val enm = new MockComponent(9)
 	val enb = new BarComponent("baz")
 	val emm = new MockComponent(13)
@@ -22,6 +22,16 @@ class EntitySystemTest extends Specification {
 	val enf = new FreakComponent
 
 	"Entity System" should {
+
+		"register components and create schema" in {
+			Persistence.register[MockComponent]
+			Persistence.register[BarComponent]
+			Persistence.register[FreakComponent]
+			Persistence.register[MissingComponent]
+			//Persistence.createSchema
+			success
+		}
+
 		"create new entities" in {
 			entity = EntitySystem.createEntity
 			en = EntitySystem.createEntity
@@ -36,12 +46,12 @@ class EntitySystemTest extends Specification {
 		}
 
 		"add components to entities" in {
-			EntitySystem.addComponent(en, enm)
-			EntitySystem.addComponent(en, enb)
-			EntitySystem.addComponent(en, enf)
+			EntitySystem.update(en, enm)
+			EntitySystem.update(en, enb)
+			EntitySystem.update(en, enf)
 
-			EntitySystem.addComponent(em, emm)
-			EntitySystem.addComponent(em, emb)
+			EntitySystem.update(em, emm)
+			EntitySystem.update(em, emb)
 			success
 		}
 
