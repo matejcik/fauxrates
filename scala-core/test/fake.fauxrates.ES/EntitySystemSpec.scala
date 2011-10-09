@@ -46,12 +46,12 @@ class EntitySystemSpec extends Specification {
 		}
 
 		"add components to entities" in {
-			EntitySystem.update(en, enm)
-			EntitySystem.update(en, enb)
-			EntitySystem.update(en, enf)
+			EntitySystem.add(en, enm)
+			EntitySystem.add(en, enb)
+			EntitySystem.add(en, enf)
 
-			EntitySystem.update(em, emm)
-			EntitySystem.update(em, emb)
+			EntitySystem.add(em, emm)
+			EntitySystem.add(em, emb)
 			success
 		}
 

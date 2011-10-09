@@ -4,6 +4,7 @@ import org.squeryl.PrimitiveTypeMode._
 import org.squeryl._
 import adapters.PostgreSqlAdapter
 import collection.immutable.HashMap
+import internals.FieldMetaData
 
 
 class PersistentEntity extends KeyedEntity[Persistence.KeyType] {
@@ -23,9 +24,19 @@ object Persistence extends Schema {
 	SessionFactory.concreteFactory = Some{() =>
 		Session.create(
 			java.sql.DriverManager.getConnection(connection, username, password),
-		    new PostgreSqlAdapter
+		    new PostgreSqlAdapter {
+			    override def createSequenceName (fmd : FieldMetaData) =
+			        fmd.parentMetaData.viewOrTable.name + "_" + fmd.columnName + "_seq"
+		    }
 		)
 	}
+
+	private val camelre = "([a-z])([A-Z])".r
+	private def removeCamel (s : String) = camelre.replaceAllIn(s, m => m.group(1) + "_" + m.group(2)).toLowerCase
+
+	override def tableNameFromClassName (n : String) = removeCamel(n)
+	override def tableNameFromClass (c : Class[_]) = tableNameFromClassName(c.getSimpleName)
+	override def columnNameFromPropertyName (n : String) = removeCamel(n)
 
 	def createSchema = inTransaction { this.create }
 
@@ -33,15 +44,22 @@ object Persistence extends Schema {
 
 	var tables = new HashMap[Manifest[_], Table[_]]
 
-	def register[A <: Component] () (implicit m : Manifest[A]) : Unit =
-		register[A](m.erasure.getSimpleName.toLowerCase)
+	def register[A <: Component] () (implicit m : Manifest[A]) = register[A](tableNameFromClass(m.erasure))
 
-	def register[A <: Component] (name : String) (implicit m : Manifest[A]) : Unit = synchronized {
-		if (tables contains m) throw new Exception("we already have "+m+"!")
-		val t = table[A](name)
-		on(t) { item => declare( item.id is primaryKey ) }
-		tables += m -> t
-	}
+	def register[A <: Component] (name : String) (implicit m : Manifest[A]) = synchronized {
+		if (tables contains m) tables(m)
+		else {
+			val t = table[A](name)
+			on(t) { item => declare( item.id is primaryKey ) }
+			tables += m -> t
+			t
+		}
+	}.asInstanceOf[Table[A]]
 
-	def tableFor[A <: Component] () (implicit m : Manifest[A]) = tables(m).asInstanceOf[Table[A]]
+	def registerTable[A] (name : String = null) (implicit m : Manifest[A]) =
+		table[A](if (name == null) tableNameFromClass(m.erasure) else name)
+
+	def tableFor[A <: Component] () (implicit m : Manifest[A]) : Table[A] =
+		if (tables contains m) tables(m).asInstanceOf[Table[A]]
+		else register[A]
 }

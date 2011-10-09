@@ -25,12 +25,16 @@ object EntitySystem {
 		}
 	}
 
-	def update[A <: Component] (entity : Entity, component : A) (implicit m : Manifest[A]) : Unit = {
+	def add[A <: Component] (entity : Entity, component : A) (implicit m : Manifest[A]) : Unit = {
 		if (component.id >= 0 && entity != component.id)
 			throw new Exception("this component already has a perfectly good entity")
 		component.id = entity
 		inTransaction { tableFor[A] insertOrUpdate component }
 	}
+
+	def update[A <: Component] (component : A) (implicit m : Manifest[A]) : Unit =
+		if (component.id == -1) throw new Exception("you first need to find an entity")
+		else add(component.id, component)
 
 	def get[A <: Component](entity: Entity) (implicit m : Manifest[A]) : Option[A] =
 		inTransaction { tableFor[A] lookup entity }
