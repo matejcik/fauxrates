@@ -6,7 +6,7 @@ import _root_.net.liftweb.util.Helpers
 import Helpers._
 import model.User
 
-class HelloWorld {
+class Index {
 	def howdy(in: NodeSeq): NodeSeq =
 		Helpers.bind("b", in,
 			"time" -> (new _root_.java.util.Date).toString,
@@ -15,7 +15,7 @@ class HelloWorld {
 
 	def users (in : NodeSeq) : NodeSeq =
 		User.onlineUsers flatMap {
-			user => bind("b", in, "username" -> user.name, "since" -> user.loggedIn.toString)
+			user => bind("b", in, "username" -> user.name)
 		} toSeq
 }
 

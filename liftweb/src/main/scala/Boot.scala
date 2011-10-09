@@ -6,7 +6,7 @@ import _root_.net.liftweb.http._
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
 import Helpers._
-import fake.fauxrates.model.User
+import fake.fauxrates.liftweb.model.User
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -15,7 +15,7 @@ import fake.fauxrates.model.User
 class Boot {
 	def boot {
 		// where to search snippet
-		LiftRules.addToPackages("fake.fauxrates")
+		LiftRules.addToPackages("fake.fauxrates.liftweb")
 
 
 		val isLoggedIn = If(User.isLoggedIn, RedirectResponse("/login"))

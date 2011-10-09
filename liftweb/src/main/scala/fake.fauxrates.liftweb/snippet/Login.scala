@@ -11,8 +11,8 @@ class Login {
 		var name = if (User.isLoggedIn()) User.currentUser.open_!.name else "ferret";
 
 		def dologin () = {
-			User.login(name)
-			S.redirectTo("/")
+			if (User.login(name)) S.redirectTo("/")
+			else S.error("invalid user name or password or whatever")
 		}
 
 		bind("entry", xhtml,
