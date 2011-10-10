@@ -9,6 +9,7 @@ import org.squeryl.PrimitiveTypeMode._
 
 class User (val name : String) extends KeyedEntity[Long] {
 	var id : Long = -1
+	var admin = false
 	@Transient var character : CharacterComponent = _
 }
 
