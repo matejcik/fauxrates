@@ -12,29 +12,33 @@ class PlaneComponent(var x : Double, var y : Double, var locationId : Option[Ent
 	var targetX : Option[Double] = None
 	var targetY : Option[Double] = None
 
+	var timeToLand : Option[java.sql.Timestamp] = None
+
+	var fuel : Double = 100 // range in km/h
+
 
 
 
 	/* CODES. BEWARE. */
 	def location = locationC
-	def location_= (outpost : OutpostComponent) = location = Some(outpost)
-	def location_= (outpost : Option[OutpostComponent]) = outpost match {
+	def location_= (outpost : OutpostComponent) : Unit = location = Some(outpost)
+	def location_= (outpost : Option[OutpostComponent]) : Unit = outpost match {
 		case Some(x) =>
 			locationC = outpost
 			locationId = Some(x.id)
-			locationXY = x.XY
+			XY = x.XY
 		case None =>
 			locationC = None
 			locationId = None
 	}
 
-	def locationXY = (x,y)
-	def locationXY_= (t : (Double,Double)) = (x,y) = t
+	def XY = (x,y)
+	def XY_= (t : (Double,Double)) = t match { case (xx,yy) => x = xx; y = yy }
 	/* TODO reset location when setting locationXY ? */
 
 	def target = targetC
-	def target_= (outpost : OutpostComponent) = target = Some(outpost)
-	def target_= (outpost : Option[OutpostComponent]) = outpost match {
+	def target_= (outpost : OutpostComponent) : Unit = target = Some(outpost)
+	def target_= (outpost : Option[OutpostComponent]) : Unit = outpost match {
 		case Some(x) =>
 			targetC = outpost
 			targetId = Some(x.id)
@@ -44,11 +48,18 @@ class PlaneComponent(var x : Double, var y : Double, var locationId : Option[Ent
 			targetId = None
 	}
 
-	/* TODO there should be a way to disallow getter because it's Option and not what you expect */
-	def targetXY = if (targetX.isDefined) Some(targetX.get, targetY.get) else None
-	def targetXY_= (t : (Double,Double)) = {
+	def targetXY : Unit = {}
+	def targetXY_? = if (targetX.isDefined) Some(targetX.get, targetY.get) else None
+	def targetXY_= (t : (Double,Double)) : Unit = {
 		val (tx,ty) = t
 		targetX = Some(tx)
 		targetY = Some(ty)
+	}
+	def targetXY_= (t : Option[(Double,Double)]) : Unit = t match {
+		case None =>
+			targetX = None
+			targetY = None
+		case Some(c) =>
+			targetXY = c
 	}
 }
