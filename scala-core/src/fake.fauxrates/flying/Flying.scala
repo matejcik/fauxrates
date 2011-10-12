@@ -6,11 +6,14 @@ import java.util.Calendar
 import java.sql.Timestamp
 import org.squeryl.PrimitiveTypeMode._
 
-object Flying extends Thread {
+object Flying extends Thread with MessageBus {
 
 	type Coords = (Double, Double)
 
 	class OutOfRangeException extends Exception
+
+	case class Takeoff(p : PlaneComponent, start : OutpostComponent)
+	case class Landing(p : PlaneComponent, end : OutpostComponent)
 
 	val RANGE : Double = 100 // km
 	val SPEED : Double = 245 // km/h
@@ -47,6 +50,7 @@ object Flying extends Thread {
 	private def takeoff (plane : PlaneComponent, outpost : OutpostComponent) = {
 		/* happens in caller thread */
 		val (dist,time) = distanceAndTime(plane, outpost)
+		val src = plane.location.get
 
 		plane.target = outpost
 		plane.location = None
@@ -68,6 +72,7 @@ object Flying extends Thread {
 			queue = walk(queue)
 			notify()
 		}
+		sendMsg ! Takeoff(plane,src)
 	}
 
 	private def land (plane : PlaneComponent) = {
@@ -79,7 +84,7 @@ object Flying extends Thread {
 		EntitySystem.update(plane)
 
 		/* call out */
-		// notify landing
+		sendMsg ! Landing(plane, plane.target.get)
 	}
 
 	private def init () = {

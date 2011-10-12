@@ -52,7 +52,7 @@
 	  <!-- Squeryl -->
 	  <dependency>
 		  <groupId>org.squeryl</groupId>
-		  <artifactId>squeryl_2.9.0-1</artifactId>
+		  <artifactId>squeryl_2.9.1</artifactId>
 		  <version>0.9.4</version>
 	  </dependency>
 
