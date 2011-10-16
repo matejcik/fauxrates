@@ -1,0 +1,27 @@
+<lift:surround with="default" at="content">
+    <div class="enroute lift:comet?type=Traffic">
+        You are now
+        <span id="sitting">sitting at <span id="where">Killbox One Alpha</span></span>
+        <span id="enroute">
+            en route to <span id="whereto">Narnia</span>, ETA <span id="eta">3 minutes</span>
+        </span>
+    </div>
+
+    <div class="locations lift:Main.locations">
+        <ul>
+            <li class="outpost">
+                <span class="outpost_name">Neverland</span>
+                (<!-- options... -->
+                    <span class="opt_flythere"><a href="#" class="fly">fly there</a>, <span class="time">3 seconds</span> away</span>
+                    <span class="opt_enroute"><span class="time">3 seconds</span> from your target</span>
+                    <span class="opt_here">you are here</span>
+                )
+                <span class="newout">(<span class="newdist">50</span> km to new outpost)</span>
+            </li>
+        </ul>
+        <form class="lift:form.ajax"><div>
+            new outpost: <input id="newname"/> X: <input id="newX"/> Y: <input id="newY"/>
+            <input type="submit" value="create"/>
+        </div></form>
+    </div>
+</lift:surround>
