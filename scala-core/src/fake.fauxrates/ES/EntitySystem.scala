@@ -13,10 +13,19 @@ object EntitySystem {
 
 	type Entity = Persistence.KeyType
 
-	def createEntity () = {
-		val entity = new PersistentEntity()
+	private def insertEntity (entity : PersistentEntity) = {
 		inTransaction { entities insert entity }
 		entity.id
+	}
+
+	def createEntity () = insertEntity(PersistentEntity.nameless)
+
+	def createNamed (name : String, comment : String) = insertEntity(PersistentEntity.named(name, comment))
+
+	def findNamed (name : String) = inTransaction {
+		val query = entities.where(e => e.name === Some(name))
+		if (query.nonEmpty) Some(query.single.id)
+		else None
 	}
 
 	def deleteEntity (n : Entity) : Unit = {

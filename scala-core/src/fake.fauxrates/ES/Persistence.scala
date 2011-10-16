@@ -7,9 +7,13 @@ import collection.immutable.HashMap
 import internals.FieldMetaData
 
 
-class PersistentEntity extends KeyedEntity[Persistence.KeyType] {
-	val id : Persistence.KeyType = -1
-	val comment : String = ""
+class PersistentEntity (val id : Persistence.KeyType, val name : Option[String], val comment : String)
+extends KeyedEntity[Persistence.KeyType] {
+	def this () = this(-1, Some(""), "")
+}
+object PersistentEntity {
+	def nameless = new PersistentEntity(-1, None, "")
+	def named (name : String, comment : String = "") = new PersistentEntity(-1, Some(name), comment)
 }
 
 object Persistence extends Schema {
