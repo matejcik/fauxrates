@@ -1,8 +1,9 @@
-package fake.fauxrates.liftweb.snippet
+package fake.fauxrates.liftweb
+package snippet
 
 import xml.NodeSeq
 import net.liftweb.util.Helpers._
-import fake.fauxrates.liftweb.model.User
+import model.User
 import net.liftweb.http.{S, SHtml}
 
 class Login {

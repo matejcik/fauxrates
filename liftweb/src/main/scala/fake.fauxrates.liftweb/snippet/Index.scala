@@ -1,5 +1,5 @@
-package fake.fauxrates.liftweb {
-package snippet {
+package fake.fauxrates.liftweb
+package snippet
 
 import _root_.scala.xml.NodeSeq
 import _root_.net.liftweb.util.Helpers
@@ -17,8 +17,4 @@ class Index {
 		User.onlineUsers flatMap {
 			user => bind("b", in, "username" -> user.name)
 		} toSeq
-}
-
-}
-
 }
