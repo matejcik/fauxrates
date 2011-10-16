@@ -23,6 +23,13 @@ object Flying extends Thread with MessageBus {
 
 	private var queue = List[PlaneComponent]()
 
+	def filloutLocations (plane : PlaneComponent) {
+		if (plane.locationId.isDefined && plane.locationC.isEmpty)
+			plane.locationC = EntitySystem.get[OutpostComponent](plane.locationId.get)
+		if (plane.targetId.isDefined && plane.targetC.isEmpty)
+			plane.targetC = EntitySystem.get[OutpostComponent](plane.targetId.get)
+	}
+
 	def distance (a : Coords, b : Coords) : Double = {
 		val (ax,ay) = a
 		val (bx,by) = b
@@ -87,7 +94,7 @@ object Flying extends Thread with MessageBus {
 		sendMsg ! Landing(plane, plane.target.get)
 	}
 
-	private def init () = {
+	private def init () = inTransaction {
 		val all = from(planes) { p => where(p.targetX isNotNull) select(p) orderBy (p.timeToLand asc) }
 		synchronized { queue = all.toList }
 	}
@@ -107,7 +114,6 @@ object Flying extends Thread with MessageBus {
 			land(plane)
 		}
 	}
-
 
 	start()
 }

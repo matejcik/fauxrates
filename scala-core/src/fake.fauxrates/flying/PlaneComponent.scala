@@ -3,19 +3,31 @@ package flying
 
 import ES._
 import org.squeryl.annotations.Transient
+import java.sql.Timestamp
 
-class PlaneComponent(var x : Double, var y : Double, var locationId : Option[EntitySystem.Entity]) extends Component {
+class PlaneComponent(
+		var x : Double, var y : Double,
+		var locationId : Option[EntitySystem.Entity],
+		var targetId : Option[EntitySystem.Entity],
+		var targetX : Option[Double], var targetY : Option[Double],
+		var timeToLand : Option[java.sql.Timestamp],
+		var fuel : Double
+	) extends Component {
+
 	@Transient var locationC : Option[OutpostComponent] = None
-
-	var targetId : Option[EntitySystem.Entity] = None
 	@Transient var targetC : Option[OutpostComponent] = None
-	var targetX : Option[Double] = None
-	var targetY : Option[Double] = None
 
-	var timeToLand : Option[java.sql.Timestamp] = None
+	/* for squeryl, to know types of Some */
+	def this () = this(0, 0, Some(-1), Some(-1), Some(0), Some(0), Some(new Timestamp(0)), 100)
 
-	var fuel : Double = 100 // range in km/h
+	/* DEFAULT CONSTRUCTOR */
+	def this (x : Double, y : Double, locationId : EntitySystem.Entity) =
+		this(x, y, Some(locationId), None, None, None, None, 100)
 
+	def this (location : OutpostComponent) = {
+		this(location.x, location.y, location.id)
+		this.location = location
+	}
 
 
 
