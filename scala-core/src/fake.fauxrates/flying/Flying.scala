@@ -5,6 +5,7 @@ import ES._
 import java.util.Calendar
 import java.sql.Timestamp
 import org.squeryl.PrimitiveTypeMode._
+import java.lang.Math
 
 object Flying extends Thread with MessageBus {
 
@@ -35,7 +36,7 @@ object Flying extends Thread with MessageBus {
 		val (bx,by) = b
 		val x = (ax - bx)
 		val y = (ay - by)
-		x * x + y * y
+		Math.sqrt(x * x + y * y)
 	}
 
 	def distanceAndTime (plane : PlaneComponent, outpost : OutpostComponent) : (Double, Double) = {

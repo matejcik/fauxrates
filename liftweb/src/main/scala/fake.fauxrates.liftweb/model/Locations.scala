@@ -6,8 +6,9 @@ import ES._
 import flying._
 
 import org.squeryl.PrimitiveTypeMode._
+import net.liftweb.common.Logger
 
-object Locations {
+object Locations extends Logger {
 	private val outposts = Persistence.tableFor[OutpostComponent]
 
 	abstract class IsReachable
@@ -18,7 +19,9 @@ object Locations {
 	def outpostsWithDistances (plane : PlaneComponent) = {
 		val loc = if (plane.locationId.isDefined) plane.locationId.get else -1;
 		transaction { from(outposts) { select(_) } map {
-			outpost => (outpost, {
+			outpost =>
+			    info("generating outpost "+outpost.id)
+				(outpost, {
 				if (loc == outpost.id) CurrentLocation
 				else {
 					val (dist, time) = Flying.distanceAndTime(plane, outpost)

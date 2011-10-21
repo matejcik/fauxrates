@@ -20,9 +20,10 @@
                 <span class="newout">(<span class="newdist">50</span> km to new outpost)</span>
             </li>
         </ul>
-        <form class="lift:form.ajax"><div>
-            new outpost: <input id="newname"/> X: <input id="newX"/> Y: <input id="newY"/>
-            <input type="submit" value="create"/>
-        </div></form>
     </div>
+    <form class="lift:form.ajax"><div class="lift:Main.newlocation">
+       new outpost: <input id="newname"/> X: <input id="newX"/> Y: <input id="newY"/>
+       <input type="submit" name="preview" value="preview"/>
+       <input type="submit" name="create" value="create"/>
+    </div></form>
 </lift:surround>
