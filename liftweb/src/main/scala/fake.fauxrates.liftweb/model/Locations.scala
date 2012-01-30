@@ -22,13 +22,13 @@ object Locations extends Logger {
 			outpost =>
 			    info("generating outpost "+outpost.id)
 				(outpost, {
-				if (loc == outpost.id) CurrentLocation
-				else {
-					val (dist, time) = Flying.distanceAndTime(plane, outpost)
-					if (dist >= Flying.RANGE) OutOfRange
-					else InRange(time)
-				}
-			})
+					if (loc == outpost.id) CurrentLocation
+					else {
+						val (dist, time) = Flying.distanceAndTime(plane, outpost)
+						if (dist >= Flying.RANGE) OutOfRange
+						else InRange(time)
+					}
+				})
 		} }
 	}
 }

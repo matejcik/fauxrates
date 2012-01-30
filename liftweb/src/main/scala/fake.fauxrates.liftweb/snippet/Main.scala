@@ -35,7 +35,7 @@ class Main extends Logger {
 	}
 
 	def rerender () : JsCmd = {
-		SetHtml("all_locations", locations(all_locations))
+		SetHtml("all_locations", /*locations(all_locations)*/ <span>debile</span>)
 	}
 
 	def flyTo (outpost : OutpostComponent) = {
@@ -44,9 +44,9 @@ class Main extends Logger {
 	}
 
 	def locations = {
-		info("called locations")
+		preview = false
+		val outposts = memoize(
 		".outpost *" #> Locations.outpostsWithDistances(plane).map { case (outpost, reachable) => {
-			var t =
 				".outpost_name" #> outpost.name &
 				".options" #> { reachable match {
 					case InRange(time) =>
@@ -61,12 +61,12 @@ class Main extends Logger {
 						".opt_here ^^" #> "nothing"
 					case _ => info("something fishy: "+outpost.toString + " -- " + reachable.toString)
 						".bla" #> "nothing"
-				} }
-			if (preview) t &= ".newdist" #> Flying.distance (coords, outpost.XY).toString
-			else t &= ".newout" #> NodeSeq.Empty
-			// HOW THE FUCK CAN THIS BE DONE INLINE
-			t
-		} }
+				} } &
+				".newdist" #>  { if (preview) Some(Flying.distance(coords, outpost.XY).toString) else None }
+		} })
+
+		"#all_locations *" #> outposts &
+		"#newlocation" #> newlocation(outposts)
 	}
 
 	var preview = false
@@ -77,7 +77,7 @@ class Main extends Logger {
 
 	private object BadValueException extends Exception
 
-	def dopreview () = {
+	def dopreview (element : MemoizeTransform) = {
 		try {
 			val xx = asDouble(x) match {
 				case Full(x) => x
@@ -89,13 +89,13 @@ class Main extends Logger {
 			}
 			coords = (xx, yy)
 			preview = true
-			rerender()
+			SetHtml("all_locations", element.applyAgain())
 		} catch {
 			case BadValueException => Noop
 		}
 	}
 
-	def docreate () = {
+	def docreate (element : MemoizeTransform) = {
 		try {
 			val xx = asDouble(x) match {
 				case Full(x) => x
@@ -112,7 +112,7 @@ class Main extends Logger {
 				preview = false
 				val outpost = new OutpostComponent(name, xx, yy)
 				EntitySystem.add(EntitySystem.createEntity(), outpost)
-				rerender()
+				SetHtml("all_locations", element.applyAgain())
 			}
 		} catch {
 			case BadValueException =>
@@ -121,10 +121,10 @@ class Main extends Logger {
 		}
 	}
 
-	def newlocation =
+	def newlocation (element : MemoizeTransform) =
 		"#newname" #> text (name, name = _) &
 		"#newX" #> text (x, x = _) &
 		"#newY" #> text (y, y = _) &
-		"name=preview" #> ajaxSubmit ("preview", dopreview) &
-		"name=create" #> ajaxSubmit ("create", docreate)
+		"name=preview" #> ajaxSubmit ("preview", () => dopreview(element)) &
+		"name=create" #> ajaxSubmit ("create", () => docreate(element))
 }
