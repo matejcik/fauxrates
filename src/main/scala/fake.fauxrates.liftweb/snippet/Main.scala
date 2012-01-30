@@ -34,25 +34,21 @@ class Main extends Logger {
 		tmpl \\ "div" filter { _ \\ "@id" exists { _.text == "all_locations" } }
 	}
 
-	def rerender () : JsCmd = {
-		SetHtml("all_locations", /*locations(all_locations)*/ <span>debile</span>)
-	}
-
-	def flyTo (outpost : OutpostComponent) = {
+	def flyTo (outpost : OutpostComponent, outposts : IdMemoizeTransform) = {
 		Flying.flyTo(plane, outpost)
-		rerender()
+		SetHtml("#all_locations", outposts.applyAgain())
 	}
 
 	def locations = {
 		preview = false
-		val outposts = memoize(
+		val outposts = memoize(idMemoize(outposts =>
 		".outpost *" #> Locations.outpostsWithDistances(plane).map { case (outpost, reachable) => {
 				".outpost_name" #> outpost.name &
 				".options" #> { reachable match {
 					case InRange(time) =>
 						".opt_flythere ^^" #> "nothing" &
 						".opt_flythere" #> {
-							".fly [onclick]" #> ajaxInvoke(() => flyTo(outpost)) &
+							".fly [onclick]" #> ajaxInvoke(() => flyTo(outpost, outposts)) &
 							".time" #> time.toString
 						}
 					case OutOfRange =>
@@ -63,7 +59,7 @@ class Main extends Logger {
 						".bla" #> "nothing"
 				} } &
 				".newdist" #>  { if (preview) Some(Flying.distance(coords, outpost.XY).toString) else None }
-		} })
+		} }))
 
 		"#all_locations *" #> outposts &
 		"#newlocation" #> newlocation(outposts)
