@@ -1,0 +1,11 @@
+@(outposts: Iterable[Outpost], context: Secured.Context)
+
+@main("World map", context.logoutToken) {
+	<h3>Destinations</h3>
+	<ul>
+	@outposts.map { outpost =>
+		<li>@outpost.name (@outpost.distance km, @outpost.timeToLand seconds away)</li>
+	}
+	</ul>
+	<a href="@routes.WorldMap."
+}

@@ -1,0 +1,5 @@
+@(context: Secured.Context)
+
+@main("Home screen", context.logoutToken) {
+	Welcome home, @context.user.character.name
+}

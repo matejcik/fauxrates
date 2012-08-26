@@ -1,0 +1,28 @@
+@(title: String, logoutToken: String = "")(content: Html)
+
+<!DOCTYPE html>
+<title>Fauxrates # @title</title>
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("css/bootstrap.min.css")">
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("css/style.css")">
+<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("img/favicon.png")">
+<script src="@routes.Assets.at("js/jquery-1.7.1.min.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("js/bootstrap.min.js")" type="text/javascript"></script>
+
+<body>
+<div id="header">
+	<h1>Stormriders</h1>
+	<p class="version">v0.0.1</p>
+</div>
+<div class="container-fluid"><div class="row-fluid">
+	<div class="span2">@****** MENU ******@
+		<nav><ul>
+			<li><a href="@routes.Main.index">Home</a></li>
+			<li><a href="@routes.WorldMap.index">Mapping</a></li>
+			@if(!logoutToken.isEmpty) {
+			<li><a href="@routes.Login.logout(logoutToken)">Logout</a></li>
+			}
+		</ul></nav>
+	</div>
+<div class="span10 body">
+@content
+</div></div></body>

@@ -1,7 +1,6 @@
-build.xml
-*.iml
-manifest.mf
-nbproject
-.idea
-out/
-target/
+logs
+project/project
+project/target
+target
+tmp
+*.swp
