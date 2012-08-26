@@ -4,3 +4,6 @@ project/target
 target
 tmp
 *.swp
+*.iml
+.idea
+.idea_modules
