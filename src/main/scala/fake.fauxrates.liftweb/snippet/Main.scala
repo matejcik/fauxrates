@@ -36,12 +36,12 @@ class Main extends Logger {
 
 	def flyTo (outpost : OutpostComponent, outposts : IdMemoizeTransform) = {
 		Flying.flyTo(plane, outpost)
-		SetHtml("#all_locations", outposts.applyAgain())
+		outposts.setHtml()
 	}
 
 	def locations = {
 		preview = false
-		val outposts = memoize(idMemoize(outposts =>
+		val outposts = idMemoize( outposts =>
 		".outpost *" #> Locations.outpostsWithDistances(plane).map { case (outpost, reachable) => {
 				".outpost_name" #> outpost.name &
 				".options" #> { reachable match {
@@ -59,9 +59,9 @@ class Main extends Logger {
 						".bla" #> "nothing"
 				} } &
 				".newdist" #>  { if (preview) Some(Flying.distance(coords, outpost.XY).toString) else None }
-		} }))
+		} })
 
-		"#all_locations *" #> outposts &
+		"#all_locations *" #> outposts(_) &
 		"#newlocation" #> newlocation(outposts)
 	}
 
@@ -73,7 +73,7 @@ class Main extends Logger {
 
 	private object BadValueException extends Exception
 
-	def dopreview (element : MemoizeTransform) = {
+	def dopreview (element : IdMemoizeTransform) = {
 		try {
 			val xx = asDouble(x) match {
 				case Full(x) => x
@@ -91,7 +91,7 @@ class Main extends Logger {
 		}
 	}
 
-	def docreate (element : MemoizeTransform) = {
+	def docreate (element : IdMemoizeTransform) = {
 		try {
 			val xx = asDouble(x) match {
 				case Full(x) => x
@@ -117,7 +117,7 @@ class Main extends Logger {
 		}
 	}
 
-	def newlocation (element : MemoizeTransform) =
+	def newlocation (element : IdMemoizeTransform) =
 		"#newname" #> text (name, name = _) &
 		"#newX" #> text (x, x = _) &
 		"#newY" #> text (y, y = _) &

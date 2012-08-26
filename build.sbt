@@ -1,13 +1,17 @@
-name := "projname"
- 
-scalaVersion := "2.9.1"
- 
-seq(webSettings: _*)
+name := "fauxrates-server"
 
-scanDirectories in Compile := Nil
+organization := "fauxrates"
+
+version := "0.1"
+
+scalaVersion := "2.9.1"
+
+//seq(webSettings: _*)
+
+//scanDirectories in Compile := Nil
 
 resolvers ++= Seq(
-  "Scala Tools Releases" at "http://scala-tools.org/repo-releases/",
+  "Scala Tools Releases" at "https://oss.sonatype.org/content/groups/scala-tools/",
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 )
 
@@ -27,5 +31,6 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "1.7.1" % "test",
   "javax.servlet" % "servlet-api" % "2.5" % "provided->default",
   "org.squeryl" %% "squeryl" % "0.9.5-RC1",
-  "postgresql" % "postgresql" % "8.4-701.jdbc4"
+  "postgresql" % "postgresql" % "8.4-701.jdbc4",
+  "ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default"
 )
