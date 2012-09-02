@@ -4,7 +4,7 @@ import fake.fauxrates.ES._
 import org.squeryl.KeyedEntity
 import org.squeryl.annotations._
 import org.squeryl.PrimitiveTypeMode._
-import fake.fauxrates.flying.{OutpostComponent, PlaneComponent}
+import fake.fauxrates.flying.{InFlightComponent, OutpostComponent, PlaneComponent}
 
 class User (val name : String) extends KeyedEntity[Long] {
 	var id : Long = -1
@@ -20,6 +20,10 @@ class User (val name : String) extends KeyedEntity[Long] {
 			EntitySystem.add(character.id, plane)
 			plane
 		}
+	}
+
+	def inFlight = {
+		EntitySystem.get[InFlightComponent](character.id)
 	}
 }
 
