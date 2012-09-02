@@ -1,7 +1,7 @@
 @(myForm : controllers.Login.LoginForm, redir : String = "")
 
 @import helper._
-@implicitField = @{ FieldConstructor(bootstrap.fields.f) }
+@import bootstrap._
 
 @main("Please log in") {
 	@form(action = routes.Login.loginSubmit, 'class -> "form-horizontal") {
