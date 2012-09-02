@@ -20,8 +20,14 @@ class InFlightComponent (
 		timeToLand = new Timestamp(ms)
 	}
 
-
-	def target = targetC
+		// for why the return type is here, see PlaneComponent.scala
+	def target : Option[OutpostComponent] = targetC match {
+		case Some(x) => targetC
+		case None if targetId.isDefined =>
+			target = EntitySystem.get[OutpostComponent](targetId.get)
+			targetC
+		case None => None
+	}
 
 	def target_=(outpost: OutpostComponent): Unit = target = Some(outpost)
 

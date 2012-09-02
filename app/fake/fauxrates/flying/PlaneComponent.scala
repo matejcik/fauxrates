@@ -28,15 +28,25 @@ class PlaneComponent(
 
 
 	/* CODES. BEWARE. */
-	def location = locationC
+
+		// note: setting return type here seems to be a scala compiler bug
+		// if the type is not set, the line with "location = " insists that
+		// the function is recursive, which it isn't
+	def location : Option[OutpostComponent] = locationC match {
+		case Some(location) => locationC
+		case None if locationId.isDefined =>
+			location = EntitySystem.get[OutpostComponent](locationId.get)
+			locationC
+		case None => None
+	}
 
 	def location_=(outpost: OutpostComponent): Unit = location = Some(outpost)
 
 	def location_=(outpost: Option[OutpostComponent]): Unit = outpost match {
-		case Some(x) =>
+		case Some(n) =>
 			locationC = outpost
-			locationId = Some(x.id)
-			XY = x.XY
+			locationId = Some(n.id)
+			XY = n.XY
 		case None =>
 			locationC = None
 			locationId = None
