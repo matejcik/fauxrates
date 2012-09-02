@@ -1,0 +1,22 @@
+@(outposts: Iterable[Outpost], position: PlanePosition, context: Secured.Context)
+
+@main("World map", context.logoutToken) {
+	<h3>You are now...</h3>
+	@position match {
+		case PlaneSitting(outpost) => { sitting at @outpost.name with a full tank and an empty belly }
+		case PlaneFlying(to, time, x, y) => {
+			en route to @to.name, ETA @time seconds
+		}
+	}
+
+	<h3>Destinations</h3>
+	<ul>@outposts.map { outpost =>
+		<li>@outpost.name
+		@position match {
+			case PlaneSitting(o) if o.id == outpost.component.id => { (you are here) }
+			case _ => { (@outpost.distance km, @outpost.timeToLand seconds away) }
+		}
+		</li>
+	}</ul>
+	<a href="@routes.WorldMap.createOutpost">Add more destinations!</a>
+}

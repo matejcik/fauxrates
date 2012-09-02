@@ -1,0 +1,24 @@
+@(myForm: Form[NewOutpost], context: Secured.Context)
+
+@import helper._
+@import bootstrap._
+
+@main("Create a new outpost", context.logoutToken) {
+	@form(action = routes.WorldMap.createOutpostSubmit, 'class -> "form-horizontal") {
+		<legend>Create a new outpost</legend>
+		@inputText(myForm("name"), 'placeholder -> "Persephone")
+		@defining(myForm("x")) { x =>
+		@defining(myForm("y")) { y =>
+		@defining(errorsFor(x,y)) { ef =>
+		@ef match { case (hasErrors, errors) =>
+		<div class="controls controls-row @if(hasErrors) {error}">
+			<input type="text" id="@y.id" name="@y.name" value="@y.value" placeholder="Latitude">
+			<input type="text" id="@x.id" name="@x.name" value="@x.value" placeholder="Longitude">
+		</div>
+		@if(hasErrors) { <p><span class="help-block">@errors</span> }
+		} } } }
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">Create</button>
+		</div>
+	}
+}
