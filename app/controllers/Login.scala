@@ -19,7 +19,7 @@ object Login extends Controller {
 	def loginSubmit = Action { implicit request =>
 		loginForm.bindFromRequest.fold(
 			formWithErrors => BadRequest(views.html.login(formWithErrors)),
-			user => Redirect(routes.Main.index).withSession(
+			user => Redirect(routes.Main.index()).withSession(
 				"username" -> user,
 				"logoutToken" -> java.util.UUID.randomUUID().toString
 			)
@@ -29,11 +29,11 @@ object Login extends Controller {
 	def logout (token: String) = Action { implicit request =>
 		session.get("logoutToken").map { sToken =>
 			if (sToken.equals(token))
-				Redirect(routes.Main.index).withNewSession
+				Redirect(routes.Main.index()).withNewSession
 			else
-				Redirect(routes.Main.index)
+				Redirect(routes.Main.index())
 		}.getOrElse {
-			Redirect(routes.Login.login)
+			Redirect(routes.Login.login())
 		}
 	}
 

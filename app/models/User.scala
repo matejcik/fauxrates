@@ -71,7 +71,7 @@ object User {
 
 	val surnames = List("Skywalker", "Cloudkicker", "Rincewind", "Kitesfear", "Stratocaster")
 
-	def logout(user : User) = {
+	def logout(user : User) {
 		transaction {
 			user.character.online = false; EntitySystem update user.character
 		}

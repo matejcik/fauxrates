@@ -29,9 +29,9 @@ class InFlightComponent (
 		case None => None
 	}
 
-	def target_=(outpost: OutpostComponent): Unit = target = Some(outpost)
+	def target_=(outpost: OutpostComponent) { target = Some(outpost) }
 
-	def target_=(outpost: Option[OutpostComponent]): Unit = outpost match {
+	def target_=(outpost: Option[OutpostComponent]) { outpost match {
 		case Some(x) =>
 			targetC = outpost
 			targetId = Some(x.id)
@@ -39,11 +39,11 @@ class InFlightComponent (
 		case None =>
 			targetC = None
 			targetId = None
-	}
+	} }
 
 	def XY = (targetX, targetY)
 
-	def XY_=(t: (Double, Double)): Unit = t match {
+	def XY_=(t: (Double, Double)) { t match {
 		case (xx, yy) => targetX = xx; targetY = yy
-	}
+	} }
 }

@@ -8,7 +8,7 @@ class OutpostComponent(var name: String, var x: Double, var y: Double) extends C
 	/* a pretty little getsetter */
 	def XY = (x, y)
 
-	def XY_=(t: (Double, Double)) = t match {
+	def XY_=(t: (Double, Double)) { t match {
 		case (xx, yy) => x = xx; y = yy
-	}
+	} }
 }

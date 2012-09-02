@@ -45,7 +45,7 @@ object Flying extends Runnable with MessageBus {
 	def inRange(plane: PlaneComponent, outpost: OutpostComponent): Boolean =
 		distance(plane.XY, outpost.XY) < plane.fuel
 
-	def flyTo(plane: PlaneComponent, outpost: OutpostComponent) = {
+	def flyTo(plane: PlaneComponent, outpost: OutpostComponent) {
 		if (EntitySystem.get[InFlightComponent](plane.id).isDefined)
 			throw new UnsupportedOperationException("no route changes!")
 		if (!inRange(plane, outpost)) throw new OutOfRangeException
@@ -53,7 +53,7 @@ object Flying extends Runnable with MessageBus {
 		takeoff(plane, outpost)
 	}
 
-	private def takeoff(plane: PlaneComponent, outpost: OutpostComponent) = {
+	private def takeoff(plane: PlaneComponent, outpost: OutpostComponent) {
 		/* happens in caller thread */
 		val (dist, time) = distanceAndTime(plane, outpost)
 		val src = plane.location.get
@@ -81,7 +81,7 @@ object Flying extends Runnable with MessageBus {
 		sendMsg ! Takeoff(plane, src)
 	}
 
-	private def land(tuple: PlaneInFlight) = tuple match { case PlaneInFlight(plane, inFlight) =>
+	private def land(tuple: PlaneInFlight) { tuple match { case PlaneInFlight(plane, inFlight) =>
 		/* happens in event loop */
 		plane.location = inFlight.target
 		EntitySystem.remove(inFlight)
@@ -89,9 +89,9 @@ object Flying extends Runnable with MessageBus {
 
 		/* call out */
 		sendMsg ! Landing(plane, plane.location.get)
-	}
+	} }
 
-	private def init() = inTransaction {
+	private def init() { inTransaction {
 		val all = join(inflight, planes.leftOuter) ( (i, p) =>
 			select (i, p)
 			orderBy (i.timeToLand asc)
@@ -110,9 +110,9 @@ object Flying extends Runnable with MessageBus {
 			}).toList
 			// OH HELL YEAH
 		}
-	}
+	} }
 
-	override def run(): Unit = {
+	override def run() {
 		init()
 		while (true) {
 			// TODO sane ending condition

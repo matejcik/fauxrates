@@ -31,9 +31,9 @@ object Persistence extends Schema {
 
 	override def columnNameFromPropertyName(n: String) = removeCamel(n)
 
-	def createSchema = inTransaction {
+	def createSchema() { inTransaction {
 		this.create
-	}
+	} }
 
 	val entities = table[PersistentEntity]("entities")
 

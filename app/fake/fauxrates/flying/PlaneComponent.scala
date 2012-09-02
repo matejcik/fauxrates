@@ -40,9 +40,9 @@ class PlaneComponent(
 		case None => None
 	}
 
-	def location_=(outpost: OutpostComponent): Unit = location = Some(outpost)
+	def location_=(outpost: OutpostComponent) { location = Some(outpost) }
 
-	def location_=(outpost: Option[OutpostComponent]): Unit = outpost match {
+	def location_=(outpost: Option[OutpostComponent]) { outpost match {
 		case Some(n) =>
 			locationC = outpost
 			locationId = Some(n.id)
@@ -50,11 +50,11 @@ class PlaneComponent(
 		case None =>
 			locationC = None
 			locationId = None
-	}
+	} }
 
 	def XY = (x, y)
 
-	def XY_=(t: (Double, Double)) = t match {
+	def XY_=(t: (Double, Double)) { t match {
 		case (xx, yy) => x = xx; y = yy
-	}
+	} }
 }

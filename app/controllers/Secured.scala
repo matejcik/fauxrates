@@ -20,5 +20,5 @@ trait Secured extends Controller {
 }
 
 object Secured {
-	case class Context (val request : Request[AnyContent], val user: User, val logoutToken: String)
+	case class Context (request : Request[AnyContent], user: User, logoutToken: String)
 }
