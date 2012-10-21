@@ -4,26 +4,20 @@ import fake.fauxrates.ES._
 import org.squeryl.KeyedEntity
 import org.squeryl.annotations._
 import org.squeryl.PrimitiveTypeMode._
-import fake.fauxrates.flying.{InFlightComponent, OutpostComponent, PlaneComponent}
+import fake.fauxrates.flying.{Flying, InFlightComponent, OutpostComponent, PlaneComponent}
 
 class User (val name : String) extends KeyedEntity[Long] {
 	var id : Long = -1
 	var admin = false
 	@Transient var character : CharacterComponent = _
 
-	def findPlane = {
-		val plane = EntitySystem.get[PlaneComponent](character.id)
-		if (plane.isDefined) plane.get
-		else {
+	def findPlane = transaction {
+		Flying.planeFor(character.id).getOrElse {
 			val zero = EntitySystem.get[OutpostComponent](EntitySystem.findNamed("OUTPOST_ZERO").get).get
 			val plane = new PlaneComponent(zero)
 			EntitySystem.add(character.id, plane)
 			plane
 		}
-	}
-
-	def inFlight = {
-		EntitySystem.get[InFlightComponent](character.id)
 	}
 }
 

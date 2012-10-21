@@ -14,6 +14,7 @@ GET		/logout		controllers.Login.logout(token: String)
 GET		/map			controllers.WorldMap.index
 GET		/map/create	controllers.WorldMap.createOutpost
 POST		/map/create	controllers.WorldMap.createOutpostSubmit
+GET		/map/fly/:id		controllers.WorldMap.fly(id: Long)
 GET		/map/:id		controllers.WorldMap.outpostDetails(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path

@@ -10,7 +10,7 @@ object Flying extends Runnable with MessageBus {
 
 	type Coords = (Double, Double)
 
-	class OutOfRangeException extends Exception
+	case object OutOfRangeException extends Exception
 
 	case class Takeoff(p: PlaneComponent, start: OutpostComponent)
 
@@ -48,10 +48,25 @@ object Flying extends Runnable with MessageBus {
 	def flyTo(plane: PlaneComponent, outpost: OutpostComponent) {
 		if (EntitySystem.get[InFlightComponent](plane.id).isDefined)
 			throw new UnsupportedOperationException("no route changes!")
-		if (!inRange(plane, outpost)) throw new OutOfRangeException
+		if (!inRange(plane, outpost)) throw OutOfRangeException
 
 		takeoff(plane, outpost)
 	}
+
+	def planeFor (id: EntitySystem.Entity) =
+		EntitySystem.get[PlaneComponent](id).map { plane =>
+		        plane.inFlight = EntitySystem.get[InFlightComponent](id)
+			plane.inFlight.map { inflight =>
+				plane.location = None
+				val (tx, ty) = inflight.XY
+				val delta = inflight.timeToLand.getTime - System.currentTimeMillis()
+				val dist = (delta / 1000) * SPEED / 3600
+				val alpha = Math.atan2(ty - plane.y, tx - plane.x)
+				plane.x = tx - dist * Math.cos(alpha)
+				plane.y = ty - dist * Math.sin(alpha)
+			}
+			plane
+		}
 
 	private def takeoff(plane: PlaneComponent, outpost: OutpostComponent) {
 		/* happens in caller thread */
@@ -114,18 +129,21 @@ object Flying extends Runnable with MessageBus {
 
 	override def run() {
 		init()
-		while (true) {
-			// TODO sane ending condition
-			val plane = synchronized {
-				if (queue.isEmpty) wait()
-				while (Calendar.getInstance().getTimeInMillis < queue.head.inFlight.timeToLand.getTime) {
-					Thread.sleep(1000)
+		try {
+			while (!thread.isInterrupted) {
+				val plane = synchronized {
+					if (queue.isEmpty) wait()
+					while (Calendar.getInstance().getTimeInMillis < queue.head.inFlight.timeToLand.getTime) {
+						Thread.sleep(1000)
+					}
+					val head = queue.head
+					queue = queue.tail
+					head
 				}
-				val head = queue.head
-				queue = queue.tail
-				head
+				land(plane)
 			}
-			land(plane)
+		} catch {
+			case _: InterruptedException => // nothing - break out of the loop
 		}
 	}
 

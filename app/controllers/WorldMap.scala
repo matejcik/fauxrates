@@ -4,9 +4,10 @@ import models.Outpost
 import fake.fauxrates.flying.{Flying, OutpostComponent}
 
 import play.api.mvc._
-import play.api.data.Form
+import play.api.data.{FormError, Form}
 import play.api.data.Forms._
 import play.api.data.format.Formats._
+import fake.fauxrates.ES.EntitySystem
 
 abstract class PlanePosition
 case class PlaneSitting(outpost: OutpostComponent) extends PlanePosition
@@ -24,7 +25,7 @@ object WorldMap extends Controller with Secured {
 
 	def index = AuthenticatedAction { context =>
 		val plane = context.user.findPlane
-		val position = context.user.inFlight.map { i =>
+		val position = plane.inFlight.map { i =>
 			val (_, time) = Flying.distanceAndTime(plane, i.target.get)
 			val (x, y) = i.XY
 			PlaneFlying(i.target.get, time, x, y)
@@ -42,7 +43,25 @@ object WorldMap extends Controller with Secured {
 	def createOutpostSubmit = AuthenticatedAction { context =>
 		newOutpostForm.bindFromRequest()(context.request).fold(
 			formWithErrors => BadRequest(views.html.worldmap.create(formWithErrors, context)),
-			newOutpost => Redirect(routes.WorldMap.index())
+			newOutpost => try {
+				Outpost.create(newOutpost.name, newOutpost.x, newOutpost.y)
+				Redirect(routes.WorldMap.index())
+			} catch {
+				case Outpost.DuplicateException => {
+					val form = newOutpostForm.fill(newOutpost)
+						.copy[NewOutpost](
+							errors = Seq(FormError("name", "duplicate")),
+							value = Some(newOutpost))
+					BadRequest(views.html.worldmap.create(form, context))
+				}
+			}
 		)
+	}
+
+	def fly (id: Long) = AuthenticatedAction { context =>
+		EntitySystem.get[OutpostComponent](id).map { outpost =>
+			Flying.flyTo(context.user.findPlane, outpost)
+		}
+		Redirect(routes.WorldMap.index())
 	}
 }

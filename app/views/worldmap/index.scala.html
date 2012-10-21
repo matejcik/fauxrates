@@ -14,7 +14,10 @@
 		<li>@outpost.name
 		@position match {
 			case PlaneSitting(o) if o.id == outpost.component.id => { (you are here) }
-			case _ => { (@outpost.distance km, @outpost.timeToLand seconds away) }
+			case _ => {
+				(@{"%1.2f".format(outpost.distance)} km, @outpost.timeToLand seconds away)
+				&mdash; <a href="@routes.WorldMap.fly(outpost.component.id)">Fly there!</a>
+			}
 		}
 		</li>
 	}</ul>

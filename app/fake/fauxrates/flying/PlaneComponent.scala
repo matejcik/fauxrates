@@ -13,6 +13,8 @@ class PlaneComponent(
 
 	@Transient var locationC: Option[OutpostComponent] = None
 
+	@Transient var inFlight: Option[InFlightComponent] = None
+
 
 	/* for squeryl, to know types of Some */
 	def this() = this(0, 0, Some(-1), 100)
