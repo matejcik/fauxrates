@@ -17,5 +17,8 @@ POST		/map/create	controllers.WorldMap.createOutpostSubmit
 GET		/map/fly/:id		controllers.WorldMap.fly(id: Long)
 GET		/map/:id		controllers.WorldMap.outpostDetails(id: Long)
 
+# Notifications
+GET		/notify/traffic	controllers.Notifications.traffic
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

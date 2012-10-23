@@ -22,4 +22,14 @@
 		</li>
 	}</ul>
 	<a href="@routes.WorldMap.createOutpost">Add more destinations!</a>
+
+	<h3>Traffic</h3>
+	<div id="traffic"></div>
+	<script>
+		var socket = new WebSocket("@routes.Notifications.traffic().webSocketURL()(context.request)");
+		var traffic = $('#traffic');
+		socket.onmessage = function(event) {
+			console.log(event.data);
+		};
+	</script>
 }

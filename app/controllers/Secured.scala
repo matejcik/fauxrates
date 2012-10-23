@@ -8,7 +8,7 @@ trait Secured extends Controller {
 
 	def AuthenticatedAction (f : Secured.Context => Result) : Action[AnyContent] =
 		Action { request =>
-			val username = request.session.get("username")
+			val username = validUser(request.session)
 			val logoutToken = request.session.get("logoutToken")
 			if (username.isDefined && logoutToken.isDefined)
 				f(Secured.Context(request, User.find(username.get), logoutToken.get))
@@ -16,7 +16,10 @@ trait Secured extends Controller {
 				Unauthorized(views.html.login(Login.loginForm)).withNewSession
 		}
 
-
+	def validUser (session: Session) = {
+		// TODO
+		session.get("username")
+	}
 }
 
 object Secured {

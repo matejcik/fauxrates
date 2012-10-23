@@ -1,14 +1,21 @@
 package fake.fauxrates
 package ES
 
-import actors.Actor
+import akka.actor.{Props, Actor}
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
 trait MessageBus {
-
 	private type Receiver = (Any) => Any
 	private var listeners = List[Receiver]()
 
-	def receive(func: Receiver) {
+	private class MessageActor extends Actor {
+		def receive = {
+			case x => resend(x)
+		}
+	}
+
+	def subscribe(func: Receiver) {
 		synchronized {
 			listeners ::= func
 	} }
@@ -19,13 +26,5 @@ trait MessageBus {
 		}
 	}
 
-	object sendMsg extends Actor {
-		def act() { loop {
-			react {
-				case x => resend(x)
-			}
-		} }
-	}
-
-	sendMsg.start()
+	val sendMsg = Akka.system.actorOf(Props(new MessageActor))
 }

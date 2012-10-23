@@ -5,28 +5,26 @@ import ES._
 import java.util.Calendar
 import org.squeryl.PrimitiveTypeMode._
 import java.lang.Math
+import akka.actor.{Props, Actor}
+import akka.util.duration._
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 
-object Flying extends Runnable with MessageBus {
+object Flying extends MessageBus {
 
 	type Coords = (Double, Double)
 
 	case object OutOfRangeException extends Exception
 
+	// outgoing messages
 	case class Takeoff(p: PlaneComponent, start: OutpostComponent)
-
 	case class Landing(p: PlaneComponent, end: OutpostComponent)
 
 	val RANGE: Double = 100
 	// km
 	val SPEED: Double = 245 // km/h
 
-	private val planes = Persistence.tableFor[PlaneComponent]
-	private val inflight = Persistence.tableFor[InFlightComponent]
 	//private val outposts = Persistence.tableFor[OutpostComponent]
-
-	case class PlaneInFlight(plane: PlaneComponent, inFlight: InFlightComponent)
-
-	private var queue = List[PlaneInFlight]()
 
 	def distance(a: Coords, b: Coords): Double = {
 		val (ax, ay) = a
@@ -50,7 +48,7 @@ object Flying extends Runnable with MessageBus {
 			throw new UnsupportedOperationException("no route changes!")
 		if (!inRange(plane, outpost)) throw OutOfRangeException
 
-		takeoff(plane, outpost)
+		actor ! FlyTo(plane, outpost)
 	}
 
 	def planeFor (id: EntitySystem.Entity) =
@@ -68,9 +66,27 @@ object Flying extends Runnable with MessageBus {
 			plane
 		}
 
+	private val actor = Akka.system.actorOf(Props[FlyingActor], name = "flyingActor")
+	Akka.system.scheduler.schedule(1 seconds, 1 seconds, actor, Tick)
+}
+
+private case class FlyTo(plane: PlaneComponent, destination: OutpostComponent)
+private case object Tick
+
+private class FlyingActor extends Actor {
+
+	private val planes = Persistence.tableFor[PlaneComponent]
+	private val inflight = Persistence.tableFor[InFlightComponent]
+
+	case class PlaneInFlight(plane: PlaneComponent, inFlight: InFlightComponent)
+
+	// internal messages
+
+	private var queue = List[PlaneInFlight]()
+
 	private def takeoff(plane: PlaneComponent, outpost: OutpostComponent) {
 		/* happens in caller thread */
-		val (dist, time) = distanceAndTime(plane, outpost)
+		val (dist, time) = Flying.distanceAndTime(plane, outpost)
 		val src = plane.location.get
 
 		val ttl = Calendar.getInstance()
@@ -89,11 +105,9 @@ object Flying extends Runnable with MessageBus {
 				x :: walk(rest)
 		}
 		/* inserts into event loop */
-		synchronized {
-			queue = walk(queue)
-			notify()
-		}
-		sendMsg ! Takeoff(plane, src)
+		queue = walk(queue)
+
+		Flying.sendMsg ! Flying.Takeoff(plane, src)
 	}
 
 	private def land(tuple: PlaneInFlight) { tuple match { case PlaneInFlight(plane, inFlight) =>
@@ -103,50 +117,37 @@ object Flying extends Runnable with MessageBus {
 		EntitySystem.update(plane)
 
 		/* call out */
-		sendMsg ! Landing(plane, plane.location.get)
+		Flying.sendMsg ! Flying.Landing(plane, plane.location.get)
 	} }
 
-	private def init() { inTransaction {
+	override def preStart() { inTransaction {
 		val all = join(inflight, planes.leftOuter) ( (i, p) =>
 			select (i, p)
 			orderBy (i.timeToLand asc)
 			on (i.id === p.map(_.id))
 		)
-		synchronized {
-			queue = all.withFilter ( _ match {
-				case (inFlight, None) =>
-					EntitySystem.remove(inFlight)
-					false
-				case _ => true
-			}).map ( _ match {
-				case (inFlight, Some(plane)) => PlaneInFlight(plane, inFlight)
-				case _ => throw new IllegalStateException("the filter before didn't work")
-					// to silence a warning about non-exhaustive match
-			}).toList
-			// OH HELL YEAH
-		}
+
+		queue = all.withFilter(_ match {
+			case (inFlight, None) =>
+				EntitySystem.remove(inFlight)
+				false
+			case _ => true
+		}).map(_ match {
+			case (inFlight, Some(plane)) => PlaneInFlight(plane, inFlight)
+			case _ => throw new IllegalStateException("the filter before didn't work")
+			// to silence a warning about non-exhaustive match
+		}).toList
+		// OH HELL YEAH
+
 	} }
 
-	override def run() {
-		init()
-		try {
-			while (!thread.isInterrupted) {
-				val plane = synchronized {
-					if (queue.isEmpty) wait()
-					while (Calendar.getInstance().getTimeInMillis < queue.head.inFlight.timeToLand.getTime) {
-						Thread.sleep(1000)
-					}
-					val head = queue.head
-					queue = queue.tail
-					head
-				}
-				land(plane)
-			}
-		} catch {
-			case _: InterruptedException => // nothing - break out of the loop
+	def receive = {
+		case Tick =>
+			if (!queue.isEmpty && System.currentTimeMillis() >= queue.head.inFlight.timeToLand.getTime) {
+			        land(queue.head)
+				queue = queue.tail
 		}
+		case FlyTo(plane, destination) => takeoff(plane, destination)
+		case _ => // nothing
 	}
-
-	val thread = new Thread(this)
-	thread.start()
 }
