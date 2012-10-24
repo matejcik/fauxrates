@@ -47,4 +47,30 @@
 			showSilence = setTimeout(function() { $('.traffic.silence').fadeIn(fade) }, timeout);
 		};
 	</script>
+
+	<h3>Map</h3>
+	<div id="map" style="position: relative; background-color: #007fb3;"></div>
+	<script><!--
+		var map = $('#map');
+		map.height(map.width());
+		var w = map.width();
+
+		function addOutpost(name, x, y) {
+			if (x <= -100 || x >= 100 || y <= -100 || y >= 100) return;
+			var out = $('<div class="outpost"></div>');
+			out.text(name);
+			out.append('<br>');
+			out.append('<img src="@routes.Assets.at("img/island.png")" alt="">');
+			var left = Math.round((w / 2) + x * (w / 200));
+			var top = Math.round((w / 2) + y * (w / 200));
+			out.css({left: left, top: top});
+			map.append(out);
+		}
+		@outposts.map { outpost =>
+		 @outpost match {
+			case Outpost(name, _, _, _, component) => {
+				addOutpost('@name', @component.x, @component.y);
+			}
+		}}
+	--></script>
 }
