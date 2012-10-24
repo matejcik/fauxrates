@@ -4,7 +4,8 @@ import fake.fauxrates.flying._
 import fake.fauxrates.ES.{Persistence, EntitySystem}
 import org.squeryl.PrimitiveTypeMode._
 
-case class Outpost (name : String, distance : Double, timeToLand : Int, component : OutpostComponent)
+case class Outpost (name : String, distance : Double, timeToLand : Int, inRange: Boolean,
+		    component : OutpostComponent)
 
 object Outpost {
 
@@ -12,7 +13,7 @@ object Outpost {
 
 	def withRanges (plane: PlaneComponent) = EntitySystem.allOf[OutpostComponent] map { outpost =>
 		val (dist, time) = Flying.distanceAndTime(plane, outpost)
-		Outpost(outpost.name, dist, time, outpost)
+		Outpost(outpost.name, dist, time, Flying.inRange(plane, outpost), outpost)
 	}
 
 	def create (name: String, x: Double, y: Double) = transaction {

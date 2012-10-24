@@ -58,10 +58,12 @@ object WorldMap extends Controller with Secured {
 		)
 	}
 
-	def fly (id: Long) = AuthenticatedAction { context =>
-		EntitySystem.get[OutpostComponent](id).map { outpost =>
-			Flying.flyTo(context.user.findPlane, outpost)
-		}
+	def fly(id: Long) = AuthenticatedAction { context =>
+		try {
+			EntitySystem.get[OutpostComponent](id).map { outpost =>
+				Flying.flyTo(context.user.findPlane, outpost)
+			}
+		} catch { case _ => /* yada yada */ }
 		Redirect(routes.WorldMap.index())
 	}
 }

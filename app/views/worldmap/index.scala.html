@@ -14,6 +14,10 @@
 		<li>@outpost.name
 		@position match {
 			case PlaneSitting(o) if o.id == outpost.component.id => { (you are here) }
+			case PlaneFlying(_, _, _, _) => { (@{"%1.2f".format(outpost.distance)} km) }
+			case PlaneSitting(_) if !outpost.inRange => {
+				(@{"%1.2f".format(outpost.distance)} km, out of range)
+			}
 			case _ => {
 				(@{"%1.2f".format(outpost.distance)} km, @outpost.timeToLand seconds away)
 				&mdash; <a href="@routes.WorldMap.fly(outpost.component.id)">Fly there!</a>
@@ -23,13 +27,24 @@
 	}</ul>
 	<a href="@routes.WorldMap.createOutpost">Add more destinations!</a>
 
-	<h3>Traffic</h3>
-	<div id="traffic"></div>
+	<h3>Traffic Control</h3>
+	<div id="traffic">
+		<div class="traffic silence">* silence, occasional static *</div>
+	</div>
 	<script>
 		var socket = new WebSocket("@routes.Notifications.traffic().webSocketURL()(context.request)");
 		var traffic = $('#traffic');
+		var showSilence = null;
+		var timeout = 15000;
+		var fade = 1000;
 		socket.onmessage = function(event) {
-			console.log(event.data);
+			var msg = $('<div class="traffic"></div>').text(event.data).hide();
+			traffic.prepend(msg);
+			msg.fadeIn(fade);
+			$('.traffic.silence').fadeOut(fade);
+			setTimeout(function() { msg.fadeOut(fade, function() { $(this).remove() }) }, timeout);
+			clearTimeout(showSilence);
+			showSilence = setTimeout(function() { $('.traffic.silence').fadeIn(fade) }, timeout);
 		};
 	</script>
 }
